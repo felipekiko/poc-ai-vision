@@ -1,0 +1,39 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: poc-ai-vision AWS resources
+
+Globals:
+  Function:
+    Timeout: 10
+    MemorySize: 128
+
+Resources:
+  OpenAIVisionFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: poc-openai-vision-analyzer
+      CodeUri: function/
+      Handler: app.lambda_handler
+      Runtime: python3.10
+      Architectures:
+        - x86_64
+      Environment:
+        Variables:
+          OPENAI_API_KEY: ""
+      Events:
+        OpenAIVision:
+          Type: Api
+          Properties:
+            Path: /analyzer
+            Method: post
+
+Outputs:
+  OpenAIVisionApi:
+    Description: "API Gateway endpoint URL for v1 stage for OpenAIVision function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/analyze/"
+  OpenAIVisionFunction:
+    Description: "OpenAIVision Lambda Function ARN"
+    Value: !GetAtt OpenAIVisionFunction.Arn
+  OpenAIVisionFunctionIamRole:
+    Description: "Implicit IAM Role created for OpenAIVision function"
+    Value: !GetAtt OpenAIVisionFunctionRole.Arn
